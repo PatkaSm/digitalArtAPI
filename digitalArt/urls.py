@@ -18,8 +18,9 @@ from django.urls import path, include
 from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
-
-from post.views import PostViewSet
+from rest_framework.authtoken import views
+from favourites.views import FavouriteViewSet
+from post.views import PostViewSet, CommentViewSet
 from tag.views import TagViewSet
 from user.views import UserViewSet
 
@@ -27,9 +28,12 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'tags', TagViewSet)
 router.register(r'posts', PostViewSet)
+router.register(r'favourites', FavouriteViewSet)
+router.register(r'comments', CommentViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', views.obtain_auth_token, name='login'),
     path('', include(router.urls)),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

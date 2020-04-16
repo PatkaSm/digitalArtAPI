@@ -1,60 +1,47 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-
 from post.models import Post, Comment
 from post.serializer import PostSerializer, CommentSerializer
-from user.permissions import IsAdmin, IsObjectOwnerOrAdmin
+from user.permissions import IsObjectOwnerOrAdmin
 
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    @action(detail=False, methods=['post'], url_name='create_post', url_path='create')
+    @action(detail=False, methods=['post'], url_name='create', url_path='create')
     def create_post(self, request):
-        serializer = PostSerializer(data = request.data)
-        if serializer.is_valid():
+        serializer = PostSerializer(data=request.data)
+        if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
-        serializer.save(owner = request.user)
+        serializer.save(owner=request.user)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['get'], url_name='my_post', url_path='post/my_posts')
-    def my_posts(self, request):
-        posts = Post.objects.filter(owner = request.user)
-        serializer = PostSerializer(posts, many=True)
-        if serializer.is_valid():
-            return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['get'], url_name='user_post', url_path='user/(?P<user_id>\d+)/posts')
+    @action(detail=False, methods=['get'], url_name='user_post', url_path='(?P<user_id>\d+)/gallery')
     def my_posts(self, request, **kwargs):
-        posts = Post.objects.filter(owner_id = kwargs.get('user_id'))
+        posts = Post.objects.filter(owner_id=kwargs.get('user_id'))
         serializer = PostSerializer(posts, many=True)
-        if serializer.is_valid():
-            return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_name='post_details', url_path='post/details/(?P<post_id>\d+)')
+    @action(detail=False, methods=['get'], url_name='post_details', url_path='post/(?P<post_id>\d+)')
     def post_details(self, request, **kwargs):
         post = get_object_or_404(Post, id=kwargs.get('post_id'))
         serializer = PostSerializer(post)
-        if serializer.is_valid():
-            return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_name='edit_post', url_path='post/details/(?P<post_id>\d+)')
+    @action(detail=False, methods=['put'], url_name='edit_post', url_path='post/(?P<post_id>\d+)/edit')
     def post_edit(self, request, **kwargs):
         post = get_object_or_404(Post, id=kwargs.get('post_id'))
         serializer = PostSerializer(post, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
-        serializer.update(instance=request.user, validated_data=serializer.validated_data)
+        serializer.update(post, serializer.validated_data)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['delete'], url_name='delete_post', url_path='post/delete/(?P<post_id>\d+)')
+    @action(detail=False, methods=['delete'], url_name='delete_post', url_path='post/(?P<post_id>\d+)/delete')
     def post_delete(self, request, **kwargs):
         post = get_object_or_404(Post, id=kwargs.get('post_id'))
         self.check_object_permissions(request, post)
@@ -75,7 +62,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    @action(detail=False, methods=['post'], url_name='create_comment', url_path=r'post/(?P<post_id>\d+)/comment/')
+    @action(detail=False, methods=['post'], url_name='create_comment', url_path=r'post/(?P<post_id>\d+)/comment')
     def create_comment(self, request, **kwargs):
         serializer = CommentSerializer(data=request.data)
         if not serializer.is_valid():

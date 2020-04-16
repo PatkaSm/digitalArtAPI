@@ -12,12 +12,13 @@ def upload_location(instance, filename):
 class Post(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    image = models.ImageField(max_length=None, upload_to=upload_location)
+    image = models.ImageField(max_length=None, upload_to=upload_location, null=True)
     describe = models.TextField(max_length=500, null=True, blank=True)
     tag = models.ManyToManyField(Tag, blank=True)
 
 
 class Comment(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField(max_length=500)
     date_added = models.DateField(auto_now=True)

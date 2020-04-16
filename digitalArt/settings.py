@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'user',
     'tag',
     'post',
+    'favourites'
 ]
 
 AUTH_USER_MODEL = 'user.User'
@@ -113,7 +114,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
        'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
 
 }
 

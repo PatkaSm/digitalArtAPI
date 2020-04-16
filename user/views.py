@@ -22,29 +22,30 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['put'], url_name='edit_user', url_path='user/edit/(?P<user_id>\d+)')
+    @action(detail=False, methods=['put'], url_name='edit_user', url_path='user/(?P<user_id>\d+)/edit')
     def edit_user(self, request, **kwargs):
         user = get_object_or_404(User.objects.filter(id=kwargs.get('user_id')))
         serializer = UserSerializer(user, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         serializer.update(instance=request.user, validated_data=serializer.validated_data)
+        print(serializer.data)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_name='user_details', url_path='user/details/(?P<user_id>\d+)')
+    @action(detail=False, methods=['get'], url_name='user_details', url_path='user/(?P<user_id>\d+)')
     def user_details(self, request, **kwargs):
         user = get_object_or_404(User.objects.filter(id=kwargs.get('user_id')))
         serializer = UserSerializer(user)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['delete'], url_name='user_delete', url_path='user/delete/(?P<user_id>\d+)')
+    @action(detail=False, methods=['delete'], url_name='user_delete', url_path='user/(?P<user_id>\d+)/delete')
     def delete_user(self, request, **kwargs):
         user = get_object_or_404(User.objects.filter(id=kwargs.get('user_id')))
         self.check_object_permissions(request, user)
         user.delete()
         return Response(data={'success': 'Pomyślnie usunięto użytkownika', 'user': user.username}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_name='disabled_user', url_path='user/disabled/(?P<user_id>\d+)')
+    @action(detail=False, methods=['post'], url_name='disabled_user', url_path='user/(?P<user_id>\d+)/disabled')
     def disabled_user(self, request, **kwargs):
         disabled_user = get_object_or_404(User, id=kwargs.get('user_id'))
         self.check_object_permissions(request, disabled_user)
