@@ -15,6 +15,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_name='create', url_path='create')
     def create_post(self, request):
+        serializer = PostSerializer(data=request.data['post'])
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         serializer.save(owner=request.user)
