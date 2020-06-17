@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from post.models import Post, Comment
 from post.serializer import PostSerializer, CommentSerializer
+from uploadImage.serializer import ImageSerializer
 from user.permissions import IsObjectOwnerOrAdmin
 
 
@@ -14,10 +15,15 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_name='create', url_path='create')
     def create_post(self, request):
-        serializer = PostSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         serializer.save(owner=request.user)
+        images_data = request.data['images']
+        for img in images_data:
+            img_serializer = ImageSerializer(data=img)
+            if not img_serializer.is_valid():
+                return Response(data=img_serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+            img_serializer.save(post=serializer.data)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_name='user_post', url_path='(?P<user_id>\d+)/gallery')

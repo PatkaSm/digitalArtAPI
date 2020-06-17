@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'user',
     'tag',
     'post',
-    'favourites'
+    'favourites',
+    'uploadImage',
 ]
 
 AUTH_USER_MODEL = 'user.User'

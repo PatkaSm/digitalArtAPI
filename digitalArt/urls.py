@@ -22,6 +22,7 @@ from rest_framework.authtoken import views
 from favourites.views import FavouriteViewSet
 from post.views import PostViewSet, CommentViewSet
 from tag.views import TagViewSet
+from uploadImage.views import ImageViewSet
 from user.views import UserViewSet
 
 router = routers.DefaultRouter()
@@ -30,6 +31,8 @@ router.register(r'tags', TagViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'favourites', FavouriteViewSet)
 router.register(r'comments', CommentViewSet)
+router.register(r'images', ImageViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
