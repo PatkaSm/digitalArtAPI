@@ -19,10 +19,11 @@ from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.authtoken import views
+
+from comment.views import CommentViewSet
 from favourites.views import FavouriteViewSet
-from post.views import PostViewSet, CommentViewSet
+from post.views import PostViewSet
 from tag.views import TagViewSet
-from uploadImage.views import ImageViewSet
 from user.views import UserViewSet
 
 router = routers.DefaultRouter()
@@ -31,8 +32,6 @@ router.register(r'tags', TagViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'favourites', FavouriteViewSet)
 router.register(r'comments', CommentViewSet)
-router.register(r'images', ImageViewSet)
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),

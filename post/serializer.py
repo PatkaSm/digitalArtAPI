@@ -1,27 +1,22 @@
 from rest_framework import serializers
 
-from post.models import Post, Comment
+from comment.models import Comment
+from comment.serializer import CommentSerializer
+from favourites.models import Favourite
+from post.models import Post
 from tag.models import Tag
 from tag.serializer import TagSerializer
-from uploadImage.models import Image
-from uploadImage.serializer import ImageSerializer
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ['owner', 'post', 'content', 'date_added']
-        read_only_fields = ['owner', 'post']
 
 
 class PostSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
     comments = serializers.SerializerMethodField()
-    images_list = serializers.SerializerMethodField()
+    is_favourite = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'title', 'images_list', 'describe', 'tag', 'comments']
+        fields = ['id', 'owner', 'image', 'title',  'describe', 'tag', 'comments', 'is_favourite', 'likes']
         read_only_fields = ['owner']
 
     def get_comments(self, obj):
@@ -29,13 +24,17 @@ class PostSerializer(serializers.ModelSerializer):
         serializer = CommentSerializer(offer_comment, many=True)
         return serializer.data
 
-    def get_images_list(self, obj):
-        post_images = Image.objects.filter(post=obj.id)
-        serializer = ImageSerializer(post_images, many=True)
-        images = []
-        for img in serializer.data:
-            images.append(('http://' + self.context['request'].get_host() + img['img']))
-        return images
+    def get_is_favourite(self, obj):
+        if self.context['request'].user.is_authenticated:
+            is_favourite = Favourite.objects.filter(post=obj.id, user=self.context['request'].user)
+            if is_favourite.exists():
+                return True
+        return False
+
+    def likes(self, obj):
+        is_favourite = Favourite.objects.filter(post=obj.id)
+        likes = is_favourite.count()
+        return likes
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tag')
