@@ -26,7 +26,7 @@ from post.views import PostViewSet
 from tag.views import TagViewSet
 from user.views import UserViewSet
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter()
 router.register(r'users', UserViewSet)
 router.register(r'tags', TagViewSet)
 router.register(r'posts', PostViewSet)

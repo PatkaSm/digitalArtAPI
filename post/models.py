@@ -13,5 +13,5 @@ class Post(models.Model):
     image = models.ImageField(null=True, blank=True, max_length=None, upload_to=upload_location)
     title = models.CharField(max_length=255)
     describe = models.TextField(max_length=500, null=True, blank=True)
-    tag = models.ManyToManyField(Tag, blank=True)
+    tag = models.ManyToManyField(Tag)
 

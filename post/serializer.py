@@ -31,14 +31,14 @@ class PostSerializer(serializers.ModelSerializer):
                 return True
         return False
 
-    def likes(self, obj):
+    def get_likes(self, obj):
         is_favourite = Favourite.objects.filter(post=obj.id)
         likes = is_favourite.count()
         return likes
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tag')
-        post = Post.objects.create(**validated_data)
+        post = Post.objects.create(**validated_data, owner=self.context['request'].user)
         for tag_data in tags_data:
             used_tag = Tag.objects.filter(word=tag_data['word'])
             if used_tag.exists():
